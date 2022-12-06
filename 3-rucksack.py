@@ -312,7 +312,7 @@ total = 0
 for rucksack in raw.split('\n'):
     half = int(len(rucksack)/2)
     found = ""
-    comp1 = rucksack[:half+1]
+    comp1 = rucksack[:half]
     for item in comp1:
         comp2 = rucksack[half:]
         if item in comp2 and item not in found:
