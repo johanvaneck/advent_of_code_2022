@@ -308,6 +308,7 @@ value = {
 'U': 47, 'V': 48, 'W': 49, 'X': 50, 'Y': 51, 'Z': 52
 }
 
+# part 1
 total = 0
 for rucksack in raw.split('\n'):
     half = int(len(rucksack)/2)
@@ -318,5 +319,19 @@ for rucksack in raw.split('\n'):
         if item in comp2 and item not in found:
             total += value[item]
             found += item
+
+print(total)
+
+# part 2
+total = 0
+sack_count = 0
+group_unique_items = []
+for rucksack in raw.split('\n'):
+    group_unique_items.extend(set(rucksack))
+    sack_count += 1
+    if sack_count%3 == 0:
+        tag = max(set(group_unique_items), key = group_unique_items.count)
+        total += value[tag]
+        group_unique_items = []
 
 print(total)
