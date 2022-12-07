@@ -1001,6 +1001,24 @@ raw = """8-17,16-49
 
 import re
 
+# x1-x2,y1-y2
+
+# -x1----x2----
+# ----y1----y2-
+# and
+# ----x1----x2-
+# -y1----y2----
+def is_overlap(x1,x2,y1,y2):
+    return (x2 >= y1 and x2 <= y2) or (x1 >= y1 and x1 <= y2)  
+
+# ----x1--x2----
+# -y1--------y2-
+# and
+# -x1--------x2-
+# ----y1--y2----
+def is_contains(x1,x2,y1,y2):
+    return (x1 >= y1 and x2 <= y2) or (x1 <= y1 and x2 >= y2)
+
 # part 1
 total = 0
 for line in raw.split('\n'):
@@ -1014,7 +1032,7 @@ print(total)
 total = 0
 for line in raw.split('\n'):
     x1,x2,y1,y2 = [int(d) for d in re.split(r"\D", line)]
-    if (x2 >= y1 and x2 <= y2) or (y1 >= x1 and y1 <= x2):
+    if is_overlap(x1,x2,y1,y2) or is_contains(x1,x2,y1,y2):
         total += 1
         
 print(total)
