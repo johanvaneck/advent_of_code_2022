@@ -1005,9 +1005,16 @@ import re
 total = 0
 for line in raw.split('\n'):
     x1,x2,y1,y2 = [int(d) for d in re.split(r"\D", line)]
-    if x1 >= y1 and x2 <= y2:
+    if (x1 >= y1 and x2 <= y2) or (x1 <= y1 and x2 >= y2):
         total += 1
-    elif x1 <= y1 and x2 >= y2:
+        
+print(total)
+
+# part 2
+total = 0
+for line in raw.split('\n'):
+    x1,x2,y1,y2 = [int(d) for d in re.split(r"\D", line)]
+    if (x2 >= y1 and x2 <= y2) or (y1 >= x1 and y1 <= x2):
         total += 1
         
 print(total)
