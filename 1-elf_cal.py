@@ -1,4 +1,4 @@
-input = """5800
+raw = """5800
 2273
 1315
 5801
@@ -2250,15 +2250,21 @@ input = """5800
 2775
 """
 
-li = input.split('\n')
-
 elves = []
-sum_cal = 0
-for l in li:
+sum_calories = 0
+for l in raw.split('\n'):
     if l == '':
-        elves.append(sum_cal)
-        sum_cal = 0
+        elves.append(sum_calories)
+        sum_calories = 0
     else:
-        sum_cal += int(l)
+        sum_calories += int(l)
 
-print(max(elves))
+# sorts inplace
+elves.sort(reverse=True)
+
+# part 1
+print(elves[0])
+
+# part 2
+print(elves[:3])
+print(sum(elves[:3]))
