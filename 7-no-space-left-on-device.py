@@ -1037,54 +1037,6 @@ def crawl(directory, path):
         return crawl(directory[next_dir], path)
 
 
-def print_tree(parent, level = 0, has_dir_size=False):
-    indent = " |"*level 
-    dir_names = [n[0] for n in parent.items() if n[0] not in reserved]
-    if has_dir_size:
-        print(f'{indent} * {parent["name"]} (size: {parent["size"]})')
-    else:
-        print(indent+" *", parent["name"])
-
-    for file in parent["files"]:
-        print(indent+" |--", f"{file['name']} (size: {file['size']})")
-    for name in dir_names:
-        print_tree(parent[name], level+1, has_dir_size)
-
-def has_dirs(parent):
-    keys = [n[0] for n in parent.items()]
-    for key in keys:
-        if key not in reserved:
-            return True
-    return False
-
-part1 = []
-def calc_compound_size(parent):
-    files_size = 0
-    for file in parent["files"]:
-        files_size += file["size"]
-    if not has_dirs(parent):
-        if files_size <= 100000:
-            print(parent["name"], files_size)
-            part1.append(files_size)
-            parent["size"] = files_size
-        else:
-            parent["size"] = f"{files_size} TOO LARGE"
-        return files_size 
-    else:
-        child_dirs_size = 0
-        child_dirs_names = [n[0] for n in parent.items() if n[0] not in reserved]
-        for name in child_dirs_names:
-            child_dirs_size += calc_compound_size(parent[name]) 
-        total_size = files_size + child_dirs_size
-        if total_size <= 100000:
-            print(parent["name"], total_size)
-            part1.append(total_size)
-            parent["size"] = total_size
-        else:
-            parent["size"] = f"{total_size} TOO LARGE"
-        return total_size
-
-
 def make_structure(lines):
     file_struct = {}
     path = []
@@ -1114,9 +1066,74 @@ def make_structure(lines):
     return file_struct
 
 
+def has_dirs(pwd):
+    keys = [n[0] for n in pwd.items()]
+    for key in keys:
+        if key not in reserved:
+            return True
+    return False
+
+
+def print_tree(pwd, level = 0, has_dir_size=False):
+    indent = " |"*level 
+    dir_names = [n[0] for n in pwd.items() if n[0] not in reserved]
+    if has_dir_size:
+        print(f'{indent} * {pwd["name"]} (size: {pwd["size"]:,})')
+    else:
+        print(indent+" *", pwd["name"])
+    for file in pwd["files"]:
+        print(indent+" |--", f"{file['name']} (size: {file['size']:,})")
+    for name in dir_names:
+        print_tree(pwd[name], level+1, has_dir_size)
+
+
+part1 = []
+def calc_compound_size(pwd):
+    files_size = 0
+    for file in pwd["files"]:
+        files_size += file["size"]
+    if not has_dirs(pwd):
+        if files_size <= 100000:
+            part1.append(files_size)
+        pwd["size"] = files_size
+        return files_size 
+    else:
+        child_dirs_size = 0
+        child_dirs_names = [n[0] for n in pwd.items() if n[0] not in reserved]
+        for name in child_dirs_names:
+            child_dirs_size += calc_compound_size(pwd[name]) 
+        total_size = files_size + child_dirs_size
+        if total_size <= 100000:
+            part1.append(total_size)
+        pwd["size"] = total_size
+        return total_size
+
+
+def find_opt_file(pwd, min_file_size, level=0):
+    size = pwd["size"]
+    if not has_dirs(pwd):
+        return size
+    else:
+        child_dirs_names = [n[0] for n in pwd.items() if n[0] not in reserved]
+        for name in child_dirs_names:
+            child_size = find_opt_file(pwd[name], min_file_size, level+1)
+            if min_file_size < child_size and child_size < size:
+                size = child_size
+        return size
+
+
 file_struct = make_structure(raw.split("\n"))
 root = file_struct["/"]
+
+# part 1
 filter_large = calc_compound_size(root)
 print_tree(root, has_dir_size=True)
-print(filter_large)
-print(sum(part1))
+print("Part 1:", sum(part1))
+
+# part 2
+disk_total = 70000000
+disk_required = 30000000
+disk_used = root["size"]
+min_file_size = disk_required + disk_used - disk_total
+part2 = find_opt_file(root, min_file_size)
+print("Part 2:", part2)
