@@ -98,6 +98,13 @@ raw = """01221001221330332030322244311333434221031330345431133122511013003042421
 212022123023002021024004011330024441114255452255343132452423554322214043030000330401030022311221212
 110120102133312201323320402242014144252524113245144224553241354421310224142233233422001111212321010"""
 
+#raw = """30373
+#25512
+#65332
+#33549
+#35390"""
+
+
 def make_matrix(text):
     mat = []
     for line in text.split("\n"):
@@ -132,15 +139,51 @@ def count_visible_trees(tree_matrix):
                     max(ups) < tree or
                     max(downs) < tree):
                     count += 1
-                else:
-                    print(max(lefts+rights+ups+downs)) 
             if tmp < count:
                 tmp_mat += f"{tree}"
             else:
                 tmp_mat += " "
-
-    print(tmp_mat)
+    #print(tmp_mat)
     return count
 
+def view_distance(tree, tree_row):
+    count = 0
+    for t in tree_row:
+        count += 1
+        if t >= tree:
+            break
+    return count
+
+
+def best_spot(tree_matrix):
+    width = len(tree_matrix)
+    height = len(tree_matrix[0])
+    best_score = 0
+    best_coords = (0,0)
+    tree_map = ""
+    for i in range(width):
+        tree_map += "\n"
+        for j in range(height):
+            tree = tree_matrix[i][j]
+            lefts = tree_matrix[i][:j][::-1]
+            rights = tree_matrix[i][j+1:]
+            ups = [row[j] for row in tree_matrix[:i]][::-1]
+            downs = [row[j] for row in tree_matrix[i+1:]]
+            view_left = view_distance(tree, lefts)
+            view_right = view_distance(tree, rights)
+            view_up = view_distance(tree, ups)
+            view_down = view_distance(tree, downs)
+            score = view_left*view_right*view_up*view_down
+            if score > best_score:
+                best_score = score
+                best_coords = (i,j)
+                tree_map += "#"
+            else:
+                tree_map += f"{tree}"
+    #print(tree_map)
+    #print(best_coords)
+    return best_score
+
 tree_matrix = make_matrix(raw)
-print(count_visible_trees(tree_matrix))
+print("Part 1:", count_visible_trees(tree_matrix))
+print("Part 2:", best_spot(tree_matrix))
